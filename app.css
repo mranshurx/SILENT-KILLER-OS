@@ -92,6 +92,38 @@ body {
   position: relative;
 }
 
+.desktop-icons {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.icon {
+  width: 80px;
+  text-align: center;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.icon:hover {
+  background: rgba(102, 252, 241, 0.1);
+  border: 1px solid #45a29e;
+}
+
+.icon-img {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+
+.icon span {
+  font-size: 12px;
+  color: #66fcf1;
+}
+
+/* --- Window Styling --- */
 .window {
   position: absolute;
   width: 420px;
@@ -104,7 +136,8 @@ body {
   flex-direction: column;
   overflow: hidden;
   top: 100px;
-  left: 100px;
+  left: 140px;
+  z-index: 10;
 }
 
 .window-header {
@@ -154,6 +187,44 @@ body {
   color: #45a29e;
 }
 
+/* --- Hacker AI Window Overrides --- */
+.hacker-ai-window {
+  width: 80% !important;
+  height: 75% !important;
+  top: 50px !important;
+  left: 10% !important;
+  z-index: 20;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.external-link {
+  color: #66fcf1;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.external-link:hover {
+  text-decoration: underline;
+}
+
+.iframe-body {
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+}
+
+.app-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff;
+}
+
 /* --- Taskbar Styling --- */
 .taskbar {
   position: absolute;
@@ -166,6 +237,7 @@ body {
   align-items: center;
   padding: 0 15px;
   gap: 10px;
+  z-index: 100;
 }
 
 .start-btn {
@@ -176,6 +248,12 @@ body {
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+}
+
+.start-btn.secondary {
+  background: transparent;
+  color: #66fcf1;
+  border: 1px solid #45a29e;
 }
 
 .lock-btn {
