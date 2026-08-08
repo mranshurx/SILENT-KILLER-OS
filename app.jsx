@@ -4,8 +4,11 @@ export default function App() {
   const [isLocked, setIsLocked] = useState(true);
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
-  const [isOpen, setIsOpen] = useState(true);
   const [time, setTime] = useState(new Date().toLocaleTimeString());
+
+  // Windows State
+  const [openTerminal, setOpenTerminal] = useState(true);
+  const [openHackerAI, setOpenHackerAI] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
@@ -49,29 +52,72 @@ export default function App() {
     );
   }
 
-  // Main OS Desktop View
+  // Desktop View
   return (
     <div className="desktop">
-      {/* Desktop Window */}
-      {isOpen && (
+      {/* Desktop Icons */}
+      <div className="desktop-icons">
+        <div className="icon" onClick={() => setOpenHackerAI(true)}>
+          <div className="icon-img">🤖</div>
+          <span>Hacker AI</span>
+        </div>
+        <div className="icon" onClick={() => setOpenTerminal(true)}>
+          <div className="icon-img">💻</div>
+          <span>Terminal</span>
+        </div>
+      </div>
+
+      {/* Terminal / System Info Window */}
+      {openTerminal && (
         <div className="window">
           <div className="window-header">
             <span>Terminal / System Info</span>
-            <button className="close-btn" onClick={() => setIsOpen(false)}></button>
+            <button className="close-btn" onClick={() => setOpenTerminal(false)}></button>
           </div>
           <div className="window-body">
             <h3>Welcome to SILENT KILLER OS</h3>
             <p className="dev-credit">Developer: <strong>nirob bhaiiii</strong></p>
             <hr />
             <p className="status-text">System Status: Active & Secured</p>
+            <p className="status-text">Apps Installed: Hacker AI</p>
+          </div>
+        </div>
+      )}
+
+      {/* Hacker AI Window */}
+      {openHackerAI && (
+        <div className="window hacker-ai-window">
+          <div className="window-header">
+            <span>Hacker AI - (https://hackerai.co/)</span>
+            <div className="header-actions">
+              <a 
+                href="https://hackerai.co/" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="external-link"
+              >
+                Open External ↗
+              </a>
+              <button className="close-btn" onClick={() => setOpenHackerAI(false)}></button>
+            </div>
+          </div>
+          <div className="window-body iframe-body">
+            <iframe
+              src="https://hackerai.co/"
+              title="Hacker AI"
+              className="app-iframe"
+            />
           </div>
         </div>
       )}
 
       {/* Taskbar */}
       <div className="taskbar">
-        <button className="start-btn" onClick={() => setIsOpen(!isOpen)}>
-          SILENT KILLER
+        <button className="start-btn" onClick={() => setOpenHackerAI(true)}>
+          🤖 Hacker AI
+        </button>
+        <button className="start-btn secondary" onClick={() => setOpenTerminal(true)}>
+          💻 Terminal
         </button>
         <button className="lock-btn" onClick={() => setIsLocked(true)}>
           Lock OS
