@@ -5,10 +5,16 @@ import '@xterm/xterm/css/xterm.css';
 
 function LinuxTerminal() {
   const terminalRef = useRef(null);
+  const termInstance = useRef(null);
 
   useEffect(() => {
+    if (!terminalRef.current) return;
+
     const term = new Terminal({
       cursorBlink: true,
+      cursorStyle: 'block',
+      fontFamily: 'monospace',
+      fontSize: 14,
       theme: {
         background: '#0b0c10',
         foreground: '#66fcf1',
@@ -16,20 +22,32 @@ function LinuxTerminal() {
       }
     });
 
+    termInstance.current = term;
+
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
     term.open(terminalRef.current);
-    fitAddon.fit();
+
+    // Auto focus terminal input immediately
+    term.focus();
+
+    setTimeout(() => fitAddon.fit(), 100);
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}`);
+    const wsUrl = `${protocol}//${window.location.host}`;
+    const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
       term.write('\r\n\x1b[32m[+] Connected to SILENT KILLER OS Linux Kernel...\x1b[0m\r\n\r\n');
+      term.focus();
     };
 
     ws.onmessage = (e) => {
       term.write(e.data);
+    };
+
+    ws.onerror = () => {
+      term.write('\r\n\x1b[31m[-] WebSocket Error: Connection failed.\x1b[0m\r\n');
     };
 
     term.onData((data) => {
@@ -48,7 +66,13 @@ function LinuxTerminal() {
     };
   }, []);
 
-  return <div ref={terminalRef} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div 
+      ref={terminalRef} 
+      style={{ width: '100%', height: '100%' }} 
+      onClick={() => termInstance.current?.focus()}
+    />
+  );
 }
 
 export default function App() {
@@ -115,7 +139,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Real Linux Terminal Window */}
+      {/* Linux Terminal Window */}
       {openTerminal && (
         <div className="window terminal-window">
           <div className="window-header">
