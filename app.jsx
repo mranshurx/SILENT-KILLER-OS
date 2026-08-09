@@ -28,17 +28,17 @@ function LinuxTerminal() {
     term.loadAddon(fitAddon);
     term.open(terminalRef.current);
 
-    // Auto focus terminal input immediately
     term.focus();
-
     setTimeout(() => fitAddon.fit(), 100);
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}`;
+    
+    term.write('\r\n\x1b[33m[*] Connecting to server backend...\x1b[0m\r\n');
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      term.write('\r\n\x1b[32m[+] Connected to SILENT KILLER OS Linux Kernel...\x1b[0m\r\n\r\n');
+      term.write('\r\n\x1b[32m[+] Connected to SILENT KILLER OS Kernel!\x1b[0m\r\n\r\n');
       term.focus();
     };
 
@@ -47,7 +47,7 @@ function LinuxTerminal() {
     };
 
     ws.onerror = () => {
-      term.write('\r\n\x1b[31m[-] WebSocket Error: Connection failed.\x1b[0m\r\n');
+      term.write('\r\n\x1b[31m[-] WebSocket Connection Failed. Check server logs.\x1b[0m\r\n');
     };
 
     term.onData((data) => {
@@ -81,8 +81,10 @@ export default function App() {
   const [error, setError] = useState(false);
   const [time, setTime] = useState(new Date().toLocaleTimeString());
 
+  // Window states
   const [openTerminal, setOpenTerminal] = useState(true);
   const [openHackerAI, setOpenHackerAI] = useState(false);
+  const [openCodeRunner, setOpenCodeRunner] = useState(false); // Code Runner Window
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
@@ -137,6 +139,10 @@ export default function App() {
           <div className="icon-img">💻</div>
           <span>Terminal</span>
         </div>
+        <div className="icon" onClick={() => setOpenCodeRunner(true)}>
+          <div className="icon-img">⚡</div>
+          <span>Code Runner</span>
+        </div>
       </div>
 
       {/* Linux Terminal Window */}
@@ -156,7 +162,7 @@ export default function App() {
       {openHackerAI && (
         <div className="window hacker-ai-window">
           <div className="window-header">
-            <span>Hacker AI - (https://hackerai.co/)</span>
+            <span>Hacker AI</span>
             <div className="header-actions">
               <a href="https://hackerai.co/" target="_blank" rel="noreferrer" className="external-link">
                 Open External ↗
@@ -170,6 +176,28 @@ export default function App() {
         </div>
       )}
 
+      {/* OnlineGDB Code Runner Window */}
+      {openCodeRunner && (
+        <div className="window coderunner-window">
+          <div className="window-header">
+            <span>OnlineGDB - Code Runner & Debugger</span>
+            <div className="header-actions">
+              <a href="https://www.onlinegdb.com/" target="_blank" rel="noreferrer" className="external-link">
+                Open External ↗
+              </a>
+              <button className="close-btn" onClick={() => setOpenCodeRunner(false)}></button>
+            </div>
+          </div>
+          <div className="window-body iframe-body">
+            <iframe 
+              src="https://www.onlinegdb.com/" 
+              title="OnlineGDB Code Runner" 
+              className="app-iframe" 
+            />
+          </div>
+        </div>
+      )}
+
       {/* Taskbar */}
       <div className="taskbar">
         <button className="start-btn" onClick={() => setOpenHackerAI(true)}>
@@ -177,6 +205,9 @@ export default function App() {
         </button>
         <button className="start-btn secondary" onClick={() => setOpenTerminal(true)}>
           💻 Terminal
+        </button>
+        <button className="start-btn secondary" onClick={() => setOpenCodeRunner(true)}>
+          ⚡ Code Runner
         </button>
         <button className="lock-btn" onClick={() => setIsLocked(true)}>
           Lock OS
