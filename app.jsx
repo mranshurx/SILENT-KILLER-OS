@@ -1,4 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Terminal } from '@xterm/xterm';
+import { FitAddon } from '@xterm/addon-fit';
+import '@xterm/xterm/css/xterm.css';
+
+function LinuxTerminal() {
+  const terminalRef = useRef(null);
+
+  useEffect(() => {
+    const term = new Terminal({
+      cursorBlink: true,
+      theme: {
+        background: '#0b0c10',
+        foreground: '#66fcf1',
+        cursor: '#66fcf1'
+      }
+    });
+
+    const fitAddon = new FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(terminalRef.current);
+    fitAddon.fit();
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+    ws.onopen = () => {
+      term.write('\r\n\x1b[32m[+] Connected to SILENT KILLER OS Linux Kernel...\x1b[0m\r\n\r\n');
+    };
+
+    ws.onmessage = (e) => {
+      term.write(e.data);
+    };
+
+    term.onData((data) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
+      }
+    });
+
+    const handleResize = () => fitAddon.fit();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      ws.close();
+      term.dispose();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <div ref={terminalRef} style={{ width: '100%', height: '100%' }} />;
+}
 
 export default function App() {
   const [isLocked, setIsLocked] = useState(true);
@@ -6,7 +57,6 @@ export default function App() {
   const [error, setError] = useState(false);
   const [time, setTime] = useState(new Date().toLocaleTimeString());
 
-  // Windows State
   const [openTerminal, setOpenTerminal] = useState(true);
   const [openHackerAI, setOpenHackerAI] = useState(false);
 
@@ -26,7 +76,6 @@ export default function App() {
     }
   };
 
-  // Lock Screen View
   if (isLocked) {
     return (
       <div className="lock-screen">
@@ -52,7 +101,6 @@ export default function App() {
     );
   }
 
-  // Desktop View
   return (
     <div className="desktop">
       {/* Desktop Icons */}
@@ -67,19 +115,15 @@ export default function App() {
         </div>
       </div>
 
-      {/* Terminal / System Info Window */}
+      {/* Real Linux Terminal Window */}
       {openTerminal && (
-        <div className="window">
+        <div className="window terminal-window">
           <div className="window-header">
-            <span>Terminal / System Info</span>
+            <span>nirob@silent-killer-bash</span>
             <button className="close-btn" onClick={() => setOpenTerminal(false)}></button>
           </div>
-          <div className="window-body">
-            <h3>Welcome to SILENT KILLER OS</h3>
-            <p className="dev-credit">Developer: <strong>nirob bhaiiii</strong></p>
-            <hr />
-            <p className="status-text">System Status: Active & Secured</p>
-            <p className="status-text">Apps Installed: Hacker AI</p>
+          <div className="window-body terminal-body">
+            <LinuxTerminal />
           </div>
         </div>
       )}
@@ -90,23 +134,14 @@ export default function App() {
           <div className="window-header">
             <span>Hacker AI - (https://hackerai.co/)</span>
             <div className="header-actions">
-              <a 
-                href="https://hackerai.co/" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="external-link"
-              >
+              <a href="https://hackerai.co/" target="_blank" rel="noreferrer" className="external-link">
                 Open External ↗
               </a>
               <button className="close-btn" onClick={() => setOpenHackerAI(false)}></button>
             </div>
           </div>
           <div className="window-body iframe-body">
-            <iframe
-              src="https://hackerai.co/"
-              title="Hacker AI"
-              className="app-iframe"
-            />
+            <iframe src="https://hackerai.co/" title="Hacker AI" className="app-iframe" />
           </div>
         </div>
       )}
