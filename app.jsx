@@ -29,7 +29,17 @@ function LinuxTerminal() {
     term.open(terminalRef.current);
 
     term.focus();
-    setTimeout(() => fitAddon.fit(), 100);
+
+    // Auto-fit terminal grid when window container is resized
+    const resizeObserver = new ResizeObserver(() => {
+      try {
+        fitAddon.fit();
+      } catch (e) {}
+    });
+
+    if (terminalRef.current) {
+      resizeObserver.observe(terminalRef.current);
+    }
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}`;
@@ -47,7 +57,7 @@ function LinuxTerminal() {
     };
 
     ws.onerror = () => {
-      term.write('\r\n\x1b[31m[-] WebSocket Connection Failed. Check server logs.\x1b[0m\r\n');
+      term.write('\r\n\x1b[31m[-] WebSocket Connection Failed. Check server status.\x1b[0m\r\n');
     };
 
     term.onData((data) => {
@@ -56,13 +66,10 @@ function LinuxTerminal() {
       }
     });
 
-    const handleResize = () => fitAddon.fit();
-    window.addEventListener('resize', handleResize);
-
     return () => {
       ws.close();
       term.dispose();
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
     };
   }, []);
 
@@ -84,7 +91,7 @@ export default function App() {
   // Window states
   const [openTerminal, setOpenTerminal] = useState(true);
   const [openHackerAI, setOpenHackerAI] = useState(false);
-  const [openCodeRunner, setOpenCodeRunner] = useState(false); // Code Runner Window
+  const [openCodeRunner, setOpenCodeRunner] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
@@ -145,9 +152,9 @@ export default function App() {
         </div>
       </div>
 
-      {/* Linux Terminal Window */}
+      {/* Resizable Linux Terminal Window */}
       {openTerminal && (
-        <div className="window terminal-window">
+        <div className="window resizable-window terminal-window">
           <div className="window-header">
             <span>nirob@silent-killer-bash</span>
             <button className="close-btn" onClick={() => setOpenTerminal(false)}></button>
@@ -158,9 +165,9 @@ export default function App() {
         </div>
       )}
 
-      {/* Hacker AI Window */}
+      {/* Resizable Hacker AI Window */}
       {openHackerAI && (
-        <div className="window hacker-ai-window">
+        <div className="window resizable-window hacker-ai-window">
           <div className="window-header">
             <span>Hacker AI</span>
             <div className="header-actions">
@@ -176,9 +183,9 @@ export default function App() {
         </div>
       )}
 
-      {/* OnlineGDB Code Runner Window */}
+      {/* Resizable OnlineGDB Window */}
       {openCodeRunner && (
-        <div className="window coderunner-window">
+        <div className="window resizable-window coderunner-window">
           <div className="window-header">
             <span>OnlineGDB - Code Runner & Debugger</span>
             <div className="header-actions">
