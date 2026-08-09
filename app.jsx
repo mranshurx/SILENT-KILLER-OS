@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
-import './App.css';
+import './app.css';
 
 /* ==========================================================================
    CLIENT-SIDE TERMINAL COMPONENT (Works on Static Sites & Dynamic Servers)
