@@ -10,16 +10,23 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ noServer: true });
 
 const PORT = process.env.PORT || 3000;
 
-// Serve static assets from Vite build
+// Serve static build from Vite
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// WebSocket Terminal Handler
+// Handle HTTP to WebSocket upgrade
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
+  });
+});
+
 wss.on('connection', (ws) => {
   const shell = process.platform === 'win32' ? 'powershell.exe' : 'bash';
+
   const ptyProcess = pty.spawn(shell, [], {
     name: 'xterm-color',
     cols: 80,
@@ -28,12 +35,16 @@ wss.on('connection', (ws) => {
     env: process.env
   });
 
+  // Pipe process output to WebSocket
   ptyProcess.onData((data) => {
     try {
-      ws.send(data);
+      if (ws.readyState === ws.OPEN) {
+        ws.send(data);
+      }
     } catch (e) {}
   });
 
+  // Pipe WebSocket input (keyboard events) to process
   ws.on('message', (msg) => {
     try {
       ptyProcess.write(msg.toString());
